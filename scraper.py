@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 import smtplib
+import time
 
 URL = "https://www.amazon.in/XP-Pen-Graphic-8-35X5-33-Pressure-Sensitivity/dp/B085HJKTK3/ref=sr_1_8?dchild=1&keywords=digital+tablet&qid=1610712614&sr=8-8"
 headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"}
@@ -30,7 +31,7 @@ def sendEmail():
 	server.starttls()
 	server.ehlo()
 
-	server.login('aashishah0475@gmail.com', "pejbcebwrfsvwsyn")
+	server.login('abc@gmail.com', "your password")
 
 	subject = "The price has fallen down!"
 	body = "Check price for the tablet."
@@ -47,4 +48,6 @@ def sendEmail():
 	server.quit() #terminate server connection
 
 
-checkPrice()
+while True:
+	checkPrice()
+	time.sleep(432000)
