@@ -12,7 +12,6 @@ def amazon(item):
 	page = requests.get(URL, headers = headers)
 	soup = BeautifulSoup(page.content, "html.parser")
 	name = "Amazon"
-	print(URL)
 	#For access to product links un-comment these:
 	#links = []
 	#for link in soup.find_all("a",{"class":"a-link-normal a-text-normal"}, limit = 5):
@@ -53,6 +52,25 @@ def flipkart(item):
 	else:
 		print(name + " search failed.")
 
+def snapdeal(item):
+	URL = "https://www.snapdeal.com/search?keyword=" + item.replace(" ", "+")
+	page = requests.get(URL, headers = headers)
+	soup = BeautifulSoup(page.content, "html.parser")
+	name = "Snapdeal"
+
+	products = []
+	prices = []
+
+	for sp in soup.find_all("p", {"class": "product-title"}, limit = 5):
+		products.append(sp.text)
+	for p in soup.find_all("span", {"class": "lfloat product-price"}, limit = 5):
+		prices.append(priceToInt(p.text))
+
+	if products and prices:
+		return cheapest(products, prices, name)
+	else:
+		print(name + " search failed.")
+
 
 #HELPER FUNCTIONS
 
@@ -77,8 +95,10 @@ def priceToInt(price):
 item = input("Enter the item you would like to search for: ")
 amazonPrices = ["Amazon", amazon(item)] 
 flipkartPrices = ["Flipkart", flipkart(item)]
-if amazonPrices[1] and flipkartPrices[1]:
-	bestPrice = min(amazonPrices, flipkartPrices)
-	print("Best product available for your search {} is on {} at Rs.{}".format(item, bestPrice[0], bestPrice[1]))
+snapdealPrices = ["Snapdeal", snapdeal(item)]
+print("*"*35)
+if amazonPrices[1] and flipkartPrices[1] and snapdealPrices[1]:
+	bestPrice = min(amazonPrices, flipkartPrices, snapdealPrices)
+	print("\nBest product available for your search \"{}\" is on {} at Rs.{}".format(item, bestPrice[0], bestPrice[1]))
 else:
 	print("Could not get the best price.")
