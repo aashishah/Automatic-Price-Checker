@@ -23,10 +23,10 @@ def amazon(item):
 	for sp in soup.find_all("span", {"class": ["a-size-base-plus a-color-base a-text-normal", "a-size-medium a-color-base a-text-normal"]}, limit = 5):
 		products.append(sp.text)
 	for p in soup.find_all("span", {"class": "a-price-whole"}, limit = 5):
-		prices.append(priceToInt(p.text))
+		prices.append(priceToInt(p.text))  #Extracting names of product and their prices
 
 	if products and prices:
-		return cheapest(products, prices, name)
+		return cheapest(products, prices, name) 
 	else:
 		print(name + " search failed.")
 
@@ -45,7 +45,7 @@ def flipkart(item):
 		products.append(a.text)
 		#links.append(a["href"])
 	for p in soup.find_all("div", {"class": "_30jeq3"}, limit = 5):
-		prices.append(priceToInt(p.text))
+		prices.append(priceToInt(p.text)) #Extracting names of product and their prices
 
 	if products and prices:
 		return cheapest(products, prices, name)
@@ -64,7 +64,7 @@ def snapdeal(item):
 	for sp in soup.find_all("p", {"class": "product-title"}, limit = 5):
 		products.append(sp.text)
 	for p in soup.find_all("span", {"class": "lfloat product-price"}, limit = 5):
-		prices.append(priceToInt(p.text))
+		prices.append(priceToInt(p.text)) #Extracting names of product and their prices
 
 	if products and prices:
 		return cheapest(products, prices, name)
@@ -74,19 +74,20 @@ def snapdeal(item):
 
 #HELPER FUNCTIONS
 
-def cheapest(products, prices, name):
+def cheapest(products, prices, name):      
 	#Prints top 5 products and returns the cheapest price
 	productList = list(zip(products, prices))
 	productList.sort(key=lambda x: x[1])
 	print(name.upper() + " TOP 5 PRODUCTS:")
-	print(tabulate(productList))
-	return productList[0][1]
+	print(tabulate(productList, headers = ["Product Name", "Price (Rs.)"]), end = "\n\n")
+	return productList[0][1] #Returns only the cheapest price for each website for final comparison
 
 def priceToInt(price):
+	#Converts the text scraped from website into integer for proper comparison
 	converted_price = [] 
 	for i in price: 
 		if i.isdigit():
-			converted_price.append(i) 
+			converted_price.append(i) #Extracting only digits
 
 	converted_price = int("".join(converted_price)) #Converting the string price to integer for comparison
 	return converted_price
