@@ -93,12 +93,11 @@ def priceToInt(price):
 
 
 item = input("Enter the item you would like to search for: ")
-amazonPrices = ["Amazon", amazon(item)] 
-flipkartPrices = ["Flipkart", flipkart(item)]
-snapdealPrices = ["Snapdeal", snapdeal(item)]
-print("*"*35)
-if amazonPrices[1] and flipkartPrices[1] and snapdealPrices[1]:
+amazonPrices = [amazon(item), "Amazon"] 
+flipkartPrices = [flipkart(item), "Flipkart"]
+snapdealPrices = [snapdeal(item), "Snapdeal"]
+if amazonPrices[0] and flipkartPrices[0] and snapdealPrices[0]:
 	bestPrice = min(amazonPrices, flipkartPrices, snapdealPrices)
-	print("\nBest product available for your search \"{}\" is on {} at Rs.{}".format(item, bestPrice[0], bestPrice[1]))
+	print("\nBest product available for your search \"{}\" is on {} at Rs.{}".format(item, bestPrice[1], bestPrice[0]))
 else:
 	print("Could not get the best price.")
