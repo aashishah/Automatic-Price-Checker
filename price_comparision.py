@@ -1,34 +1,84 @@
 import requests
 from bs4 import BeautifulSoup
-import smtplib
-import time
+from tabulate import tabulate
 
 headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"}
 
-def amazonPrice():
-	item = input("Enter the item you would like to search for: ")
-	URL = "https://www.amazon.in/s?k=" + item
+
+#MAIN WEBSITE SCRAPERS
+
+def amazon(item):
+	URL = "https://www.amazon.in/s?k=" + item.replace(" ", "+")
 	page = requests.get(URL, headers = headers)
 	soup = BeautifulSoup(page.content, "html.parser")
+	name = "Amazon"
+	print(URL)
+	#For access to product links un-comment these:
+	#links = []
+	#for link in soup.find_all("a",{"class":"a-link-normal a-text-normal"}, limit = 5):
+		#links.append(link["href"])
+
 	products = []
-	links = []
 	prices = []
-	for link in soup.find_all("a",{"class":"a-link-normal a-text-normal"}, limit = 5):
-		links.append(link["href"])
-	for sp in soup.find_all("span", {"class": "a-size-base-plus a-color-base a-text-normal"}, limit = 5):
+
+	for sp in soup.find_all("span", {"class": ["a-size-base-plus a-color-base a-text-normal", "a-size-medium a-color-base a-text-normal"]}, limit = 5):
 		products.append(sp.text)
 	for p in soup.find_all("span", {"class": "a-price-whole"}, limit = 5):
-		prices.append(p.text)
-	print(prices)
+		prices.append(priceToInt(p.text))
 
-def temp():
-	price = soup.find(id = "priceblock_ourprice").text.split()[1] #finds price of the product and extracts just the text
+	if products and prices:
+		return cheapest(products, prices, name)
+	else:
+		print(name + " search failed.")
+
+	
+def flipkart(item):
+	URL = "https://www.flipkart.com/search?q=" + item
+	page = requests.get(URL, headers = headers)
+	soup = BeautifulSoup(page.content, "html.parser")
+	name = "Flipkart"
+	#For access to product links un-comment these:
+	#links = []
+
+	products = []
+	prices = []
+	for a in soup.find_all("a", {"class": "s1Q9rs"}, limit = 5):
+		products.append(a.text)
+		#links.append(a["href"])
+	for p in soup.find_all("div", {"class": "_30jeq3"}, limit = 5):
+		prices.append(priceToInt(p.text))
+
+	if products and prices:
+		return cheapest(products, prices, name)
+	else:
+		print(name + " search failed.")
+
+
+#HELPER FUNCTIONS
+
+def cheapest(products, prices, name):
+	#Prints top 5 products and returns the cheapest price
+	productList = list(zip(products, prices))
+	productList.sort(key=lambda x: x[1])
+	print(name.upper() + " TOP 5 PRODUCTS:")
+	print(tabulate(productList))
+	return productList[0][1]
+
+def priceToInt(price):
 	converted_price = [] 
-	for i in price[0:5]: 
+	for i in price: 
 		if i.isdigit():
-			converted_price.append(i) #The price reads as ₹&nbsp;4,199.00 on the site, hence the numbers need to be exracted.
+			converted_price.append(i) 
 
 	converted_price = int("".join(converted_price)) #Converting the string price to integer for comparison
-	print("Current price: " + converted_price)
+	return converted_price
 
-amazonPrice()
+
+item = input("Enter the item you would like to search for: ")
+amazonPrices = ["Amazon", amazon(item)] 
+flipkartPrices = ["Flipkart", flipkart(item)]
+if amazonPrices[1] and flipkartPrices[1]:
+	bestPrice = min(amazonPrices, flipkartPrices)
+	print("Best product available for your search {} is on {} at Rs.{}".format(item, bestPrice[0], bestPrice[1]))
+else:
+	print("Could not get the best price.")
